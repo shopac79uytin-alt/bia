@@ -1,21 +1,21 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Bida Mini Có Cây Cơ trên Streamlit", page_icon="🎱", layout="centered"
+    page_title="Bida Mini Xếp Tam Giác trên Streamlit", page_icon="🎱", layout="centered"
 )
 
-st.title("🎱 Mini Billiards - Có Cây Cơ (6 Lỗ & 11 Bi)")
+st.title("🎱 Mini Billiards - Xếp Bi Hình Tam Giác (11 Bi & 6 Lỗ)")
 st.write(
-    "Kéo ngược từ bi trắng để lấy lực và ngắm bắn bằng cây cơ trực quan!"
+    "Các bi màu đã được xếp thành hình tam giác gọn gàng. Kéo bi cái (trắng) và dùng cơ để phá bóng!"
 )
 
-# Mã HTML/JS tích hợp cây cơ hiển thị tương tác
+# Mã HTML/JS tích hợp bi có số và xếp hình tam giác
 pool_game_html = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Pool Game with Cue Stick</title>
+    <title>Pool Game Triangle Rack</title>
     <style>
         body {
             margin: 0;
@@ -42,7 +42,7 @@ pool_game_html = """
         const canvas = document.getElementById('poolCanvas');
         const ctx = canvas.getContext('2d');
 
-        const BALL_RADIUS = 9;
+        const BALL_RADIUS = 10;
         const POCKET_RADIUS = 16;
         const FRICTION = 0.985;
         
@@ -60,18 +60,32 @@ pool_game_html = """
             { x: TABLE_X + TABLE_W, y: TABLE_Y + TABLE_H }
         ];
 
+        // Khởi tạo vị trí: Bi trắng ở bên trái, 10 bi màu xếp thành hình tam giác ở bên phải
+        let startX = 460;
+        let startY = 170;
+        let r = BALL_RADIUS * 2.05; // Khoảng cách giữa các tâm bi để khít hình tam giác
+
         let balls = [
-            { id: 0, x: 180, y: 170, vx: 0, vy: 0, color: '#ffffff', isCue: true, active: true },
-            { id: 1, x: 450, y: 170, vx: 0, vy: 0, color: '#f1c40f', active: true },
-            { id: 2, x: 472, y: 155, vx: 0, vy: 0, color: '#3498db', active: true },
-            { id: 3, x: 472, y: 185, vx: 0, vy: 0, color: '#e74c3c', active: true },
-            { id: 4, x: 494, y: 140, vx: 0, vy: 0, color: '#9b59b6', active: true },
-            { id: 5, x: 494, y: 170, vx: 0, vy: 0, color: '#e67e22', active: true },
-            { id: 6, x: 494, y: 200, vx: 0, vy: 0, color: '#1abc9c', active: true },
-            { id: 7, x: 516, y: 140, vx: 0, vy: 0, color: '#2ecc71', active: true },
-            { id: 8, x: 516, y: 170, vx: 0, vy: 0, color: '#d35400', active: true },
-            { id: 9, x: 516, y: 200, vx: 0, vy: 0, color: '#7f8c8d', active: true },
-            { id: 10, x: 538, y: 170, vx: 0, vy: 0, color: '#2c3e50', active: true }
+            // Bi cái (trắng)
+            { id: 0, number: '', x: 180, y: 170, vx: 0, vy: 0, color: '#ffffff', textColor: '#000', isCue: true, active: true },
+            
+            // Hàng 1 (1 viên) - Đỉnh tam giác
+            { id: 1, number: '1', x: startX, y: startY, vx: 0, vy: 0, color: '#f1c40f', textColor: '#000', isCue: false, active: true },
+            
+            // Hàng 2 (2 viên)
+            { id: 2, number: '2', x: startX + r * 0.866, y: startY - r / 2, vx: 0, vy: 0, color: '#3498db', textColor: '#fff', isCue: false, active: true },
+            { id: 3, number: '3', x: startX + r * 0.866, y: startY + r / 2, vx: 0, vy: 0, color: '#e74c3c', textColor: '#fff', isCue: false, active: true },
+            
+            // Hàng 3 (3 viên)
+            { id: 4, number: '4', x: startX + r * 1.732, y: startY - r, vx: 0, vy: 0, color: '#9b59b6', textColor: '#fff', isCue: false, active: true },
+            { id: 5, number: '5', x: startX + r * 1.732, y: startY, vx: 0, vy: 0, color: '#e67e22', textColor: '#fff', isCue: false, active: true },
+            { id: 6, number: '6', x: startX + r * 1.732, y: startY + r, vx: 0, vy: 0, color: '#1abc9c', textColor: '#fff', isCue: false, active: true },
+
+            // Hàng 4 (4 viên) - Đáy tam giác
+            { id: 7, number: '7', x: startX + r * 2.598, y: startY - r * 1.5, vx: 0, vy: 0, color: '#2ecc71', textColor: '#fff', isCue: false, active: true },
+            { id: 8, number: '8', x: startX + r * 2.598, y: startY - r * 0.5, vx: 0, vy: 0, color: '#2c3e50', textColor: '#fff', isCue: false, active: true },
+            { id: 9, number: '9', x: startX + r * 2.598, y: startY + r * 0.5, vx: 0, vy: 0, color: '#d35400', textColor: '#fff', isCue: false, active: true },
+            { id: 10, number: '10', x: startX + r * 2.598, y: startY + r * 1.5, vx: 0, vy: 0, color: '#7f8c8d', textColor: '#fff', isCue: false, active: true }
         ];
 
         let isDragging = false;
@@ -201,14 +215,13 @@ pool_game_html = """
 
             const cue = balls.find(b => b.isCue);
 
-            // Vẽ cây cơ và đường ngắm khi đang kéo chuột
+            // Vẽ cây cơ và đường ngắm khi kéo chuột
             if (isDragging && cue.active) {
                 let dx = mouseX - cue.x;
                 let dy = mouseY - cue.y;
                 let angle = Math.atan2(dy, dx);
-                let pullDistance = Math.min(Math.hypot(dx, dy), 120); // Giới hạn khoảng kéo
+                let pullDistance = Math.min(Math.hypot(dx, dy), 120);
 
-                // Vẽ đường ngắm chấm bi đứt nét hướng bắn
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
                 ctx.lineWidth = 2;
                 ctx.setLineDash([4, 4]);
@@ -218,15 +231,13 @@ pool_game_html = """
                 ctx.stroke();
                 ctx.setLineDash([]);
 
-                // Vẽ cây cơ bida
                 ctx.save();
                 ctx.translate(cue.x, cue.y);
-                ctx.rotate(angle); // Xoay theo hướng kéo
+                ctx.rotate(angle);
 
                 let cueLength = 180;
-                let offset = 15 + pullDistance; // Khoảng cách lùi cơ theo lực kéo
+                let offset = 15 + pullDistance;
 
-                // Thân cơ (màu gỗ)
                 let gradient = ctx.createLinearGradient(offset, 0, offset + cueLength, 0);
                 gradient.addColorStop(0, '#d35400');
                 gradient.addColorStop(1, '#5a3d28');
@@ -243,9 +254,11 @@ pool_game_html = """
                 ctx.restore();
             }
 
-            // Vẽ bi
+            // Vẽ bi và số trên bi
             balls.forEach(ball => {
                 if (!ball.active) return;
+                
+                // Thân bi
                 ctx.beginPath();
                 ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
                 ctx.fillStyle = ball.color;
@@ -254,6 +267,15 @@ pool_game_html = """
                 ctx.strokeStyle = '#000000';
                 ctx.stroke();
                 ctx.closePath();
+
+                // Số trên bi (nếu có)
+                if (!ball.isCue) {
+                    ctx.fillStyle = ball.textColor;
+                    ctx.font = 'bold 10px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(ball.number, ball.x, ball.y);
+                }
             });
         }
 
@@ -272,8 +294,8 @@ pool_game_html = """
 st.components.v1.html(pool_game_html, height=400, scrolling=False)
 
 st.markdown("---")
-st.markdown("### Hướng dẫn:")
+st.markdown("### Hướng dẫn chơi:")
 st.markdown(
-    "- Nhấn giữ và kéo chuột từ **bi trắng** ra xa để xuất hiện **cây cơ bida**.\n"
-    "- Kéo càng xa lực đánh càng mạnh, thả tay ra để cơ đập vào bi trắng!"
+    "- **Xếp bi:** 10 viên bi màu được xếp gọn thành hình tam giác ở đầu bàn.\n"
+    "- **Cách đánh:** Kéo ngược từ bi trắng (có cây cơ hướng dẫn) để ngắm và thả tay để phá bóng."
 )
